@@ -1,1 +1,1 @@
-# wp-accolore-settings-demo
+# wp-al-settings-demo
