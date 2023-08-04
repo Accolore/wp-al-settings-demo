@@ -195,23 +195,6 @@ if (! class_exists('WP_Accolore_Settings')){
 								);
 							}
 							break;
-						case 'license':
-							register_setting(
-								$config_prefix . '_' . $section['id'] . '_settings',
-								$config_prefix . '_' . $field['id'] . '_message',
-								array(
-									'default' => '',
-								)
-							);
-							register_setting(
-								$config_prefix . '_' . $section['id'] . '_settings',
-								$config_prefix . '_' . $field['id'],
-								array(
-									'default' => $field['default'],
-									'sanitize_callback' => array($this, 'license_callback'),
-								)
-							);
-							break;
 						case 'raw':
 							break;
 						default:
@@ -242,6 +225,9 @@ if (! class_exists('WP_Accolore_Settings')){
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 			$element_id = $config_prefix . '_' . str_replace("-", "_", $arguments['id']);
 
+			?>
+			<div id="<?php echo esc_attr($element_id); ?>-wrapper">
+			<?php
 			// Element Rendering
 			switch ($arguments['type']) {
 				case 'reset':
@@ -253,19 +239,6 @@ if (! class_exists('WP_Accolore_Settings')){
 					$element_value = get_option($element_id, $arguments['default']);
 					?>
 					<input type="text" name="<?php echo esc_attr($element_id) ?>" id="<?php echo esc_attr($element_id) ?>" value="<?php echo $element_value; ?>" class="regular-text">
-					<?php if (isset($arguments['subtitle'])) echo '<p>' . $arguments['subtitle'] . '</p>'; ?>
-					<?php if (isset($arguments['desc'])) echo '<p>' . $arguments['desc'] . '</p>'; ?>
-					<?php
-					break;
-				case 'license':
-					$element_value = get_option($element_id);
-					$element_value_message = get_option($element_id . '_message');
-					$label_class = 'license-label-primary';
-					?>
-					<input type="text" name="<?php echo esc_attr($element_id) ?>" id="<?php echo esc_attr($element_id) ?>" value="<?php echo $element_value; ?>" class="regular-text">
-					<?php if ($element_value_message != '') : ?>
-						<span class="<?php echo $label_class; ?>"><?php echo $element_value_message; ?></span>
-					<?php endif; ?>
 					<?php if (isset($arguments['subtitle'])) echo '<p>' . $arguments['subtitle'] . '</p>'; ?>
 					<?php if (isset($arguments['desc'])) echo '<p>' . $arguments['desc'] . '</p>'; ?>
 					<?php
@@ -422,7 +395,7 @@ if (! class_exists('WP_Accolore_Settings')){
 								target_<?php echo esc_attr($element_id); ?>.style.background = color.rgbaString;
 								input_<?php echo esc_attr($element_id); ?>.value = color.rgbaString;
 							},
-							<?php echo $arguments['alpha'] ? 'alpha : true,' : 'alpha : false,';?>
+							<?php echo $arguments['alpha'] ? 'alpha : true' : 'alpha : false';?>,
 						});
 
 						target_<?php echo esc_attr($element_id); ?>.style.backgroundColor = "<?php echo $element_value ?>";
@@ -507,6 +480,103 @@ if (! class_exists('WP_Accolore_Settings')){
 				default:
 					print_r($arguments);
 			}
+			?>
+			</div><!-- element_id wrapper close -->
+			<?php
+			if (isset($arguments['required'])) {
+				$this->_render_visibility_js($element_id, $arguments['required']);
+			}
+		}
+
+		/**
+		 * Render the optional visibility javascript
+		 *
+		 * @since    1.0.0
+		 * @param   $element_id		<string>	The id of the field element to display or hide
+		 * @param   $required		<array>		Array with the data required for the field visualization
+		 */
+		private function _render_visibility_js($element_id, $required) {
+			global $accolore_config;
+
+			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
+			$target_id       = $config_prefix . '_' . str_replace("-", "_", $required['target']);
+			$global_list_var = 'wp_al_visibility_list'; //$config_prefix . '_visibility_list';
+			?>
+			<script>
+				var wp_al_visibility_list;
+
+				if (typeof wp_al_visibility_list === undefined) {
+					wp_al_visibility_list = [];
+				} 
+
+				var target    = document.getElementById('<?php echo $target_id; ?>');
+				var wrapper   = document.getElementById('<?php echo $element_id; ?>-wrapper');
+				var condition = false;
+				
+				wrapper = wrapper.parentElement.parentElement
+
+				switch('<?php echo $required['operator']; ?>') {
+					case '<':
+						condition = (target.value < '<?php echo $required['value']; ?>');
+						break;
+					case '>':
+						condition = (target.value > '<?php echo $required['value']; ?>');
+						break;
+					case '!=':
+						condition = (target.value != '<?php echo $required['value']; ?>');
+						break;
+					case '=':
+					default:
+						condition = (target.value == '<?php echo $required['value']; ?>');
+				}
+				if (condition == true) {
+					wrapper.classList.remove('wrapper-hide');
+				} else {
+					wrapper.classList.add('wrapper-hide');
+				}
+
+				wp_al_visibility_list.push([
+					'<?php echo $target_id; ?>',
+					'<?php echo $required['operator']; ?>',
+					'<?php echo $required['value']; ?>',
+					'<?php echo $element_id; ?>-wrapper',
+				]);
+				
+				target.addEventListener('change', function (event) {
+					event.preventDefault();
+
+					wp_al_visibility_list.forEach(element => {
+						var condition = false;
+						var target    = document.getElementById(element[0]);
+						var operator  = element[1];
+						var value     = element[2];
+						var wrapper   = document.getElementById(element[3]);
+
+						wrapper = wrapper.parentElement.parentElement
+
+						switch(operator) {
+							case '<':
+								condition = (target.value < value);
+								break;
+							case '>':
+								condition = (target.value > value);
+								break;
+							case '!=':
+								condition = (target.value != value);
+								break;
+							case '=':
+							default:
+								condition = (target.value == value);
+						}
+						if (condition == true) {
+							wrapper.classList.remove('wrapper-hide');
+						} else {
+							wrapper.classList.add('wrapper-hide');
+						}
+					});
+				}, false);
+			</script>
+			<?php 
 		}
 
 		/**
@@ -566,71 +636,14 @@ if (! class_exists('WP_Accolore_Settings')){
 		public function sanitize_settings ( $input ) {
 			if (isset($_POST['reset'])) {
 				$default_values = $this->get_settings_values(false);
-				$license_field = $this->get_license_field_id();
 
 				foreach($default_values as $key => $value) {
-					if ($license_field == false || strpos($key, $license_field) === false ) {
-						delete_option($key);
-					}
+					delete_option($key);
 				}
 				return false;
 			}
 			if (is_string($input)) $input= esc_html($input);
 			return $input;
-		}
-
-		/**
-		 * Handle license validation
-		 *
-		 * @since    2.9.0
-		 * @param   $input		<mixed>		Input value for the setting to sanitize
-		 */
-		public function license_callback( $input ) {
-			global $accolore_config;
-
-			$plugin_license = new WP_Accolore_License($this->plugin_name);
-			
-			$text_domain              = $accolore_config[$this->plugin_name]['text_domain'];
-			$validation_code          = esc_html($input);
-			$license_field_id         = $plugin_license->get_license_field_id();
-			$license_field_message    = $license_field_id . '_message';
-				
-			if ($validation_code == '') {
-				update_option( $license_field_message, '', false);
-				return $validation_code;
-			}
-			
-			$response = $plugin_license->validation_check($validation_code);
-
-            if ($response != -1) {
-				update_option( $license_field_message, __('Invalid purchase code', $text_domain), false );
-				return $validation_code;
-            }
-			
-			update_option( $license_field_message, __('License validated correctly', $text_domain), false );
-			return  $validation_code;
-		}
-
-		/**
-		 * Return the id of the license field.
-		 *
-		 * @since    2.9.0
-		 * @return 	<string>		A string representing the license field id as written into the db
-		 */
-		private function get_license_field_id() {
-			global $accolore_config;
-
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
-			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
-
-			foreach($config_sections as $section) {
-				foreach($section['fields'] as $field) {
-					if ($field['type'] == 'license' ) {
-						return $config_prefix . '_' . str_replace("-", "_", $field['id']);
-					}
-				}
-			}
-			return false;
 		}
 
 		/**
@@ -687,15 +700,6 @@ if (! class_exists('WP_Accolore_Settings')){
 								$result[$element_id . '_right']  = get_option($element_id . '_right', $field['default']['right']);
 								$result[$element_id . '_bottom'] = get_option($element_id . '_bottom', $field['default']['bottom']);
 								$result[$element_id . '_left']   = get_option($element_id. '_left', $field['default']['left']);
-							}
-							break;
-						case 'license':
-							if ($defaults) {
-								$result[$element_id]  = '';
-								$result[$element_id . '_validation']  = '';
-							} else {
-								$result[$element_id]  = get_option($element_id, '');
-								$result[$element_id . '_validation']  = get_option($element_id . '_validation', '');
 							}
 							break;
 						case 'color':

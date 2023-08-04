@@ -1,4 +1,46 @@
 /**
- * All of the CSS for your admin-specific functionality should be
+ * All of the CSS for your dashboard-specific functionality should be
  * included in this file.
  */
+
+ .color-picker-wrapper {
+    display: inline-block;
+    border : 1px solid lightgray;
+    padding: 0 0 0 8px;
+    margin : 0 10px 0 0;
+}
+
+.color-picker {
+    width         : 32px;
+    height        : 32px;
+    border-left   : 1px solid lightgray;
+    display       : inline-block;
+    vertical-align: middle;
+}
+
+.color-picker-boxed {
+    width         : 32px;
+    height        : 32px;
+    border   : 1px solid lightgray;
+    display       : inline-block;
+    vertical-align: middle;
+}
+
+.font-picker-wrapper {
+    display: inline-block;
+}
+
+.version-label {
+    background-color: orangered;
+    color           : whitesmoke;
+    padding         : 0.3em 0.6em;
+    margin          : 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+input[type="text"].wide {
+    width: 90% !important;
+}
+
+.wrapper-hide { display: none; }
