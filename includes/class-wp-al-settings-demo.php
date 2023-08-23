@@ -147,11 +147,11 @@ class Wp_Al_Settings_Demo {
 		$plugin_settings    = new WP_Accolore_Settings( $this->get_plugin_name() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'setup_sections' );
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'setup_fields' );
-		$this->loader->add_action( 'admin_menu', $plugin_settings, 'add_menu_page' );
+		$this->loader->add_action( 'admin_init', $plugin_settings, 'setup_sections', 99);
+		$this->loader->add_action( 'admin_init', $plugin_settings, 'setup_fields', 99 );
+		$this->loader->add_action( 'admin_menu', $plugin_settings, 'add_menu_page', 99 );
 
 	}
 

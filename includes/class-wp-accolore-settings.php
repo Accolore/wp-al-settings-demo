@@ -44,8 +44,8 @@ if (! class_exists('WP_Accolore_Settings')){
         public function add_menu_page() {
             global $accolore_config;
 
-			$config_menu     = $accolore_config[$this->plugin_name]['settings_config']['menu'];
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_menu     = $accolore_config[$this->plugin_name]['menu'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 
 			$default_tab_id = '';
@@ -64,7 +64,7 @@ if (! class_exists('WP_Accolore_Settings')){
         public function setup_sections() {
 			global $accolore_config;
 
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 
 			foreach($config_sections as $section) {
@@ -89,7 +89,7 @@ if (! class_exists('WP_Accolore_Settings')){
         public function setup_fields() {
 			global $accolore_config;
 
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 
 			foreach($config_sections as $section) {
@@ -221,9 +221,9 @@ if (! class_exists('WP_Accolore_Settings')){
 		public function field_callback( $arguments ) {
 			global $accolore_config;
 
-			$text_domain = $accolore_config[$this->plugin_name]['text_domain'];
-			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
-			$element_id = $config_prefix . '_' . str_replace("-", "_", $arguments['id']);
+			$text_domain   = $accolore_config[$this->plugin_name]['text_domain'];
+			$config_prefix = $accolore_config[$this->plugin_name]['prefix'];
+			$element_id    = $config_prefix . '_' . str_replace("-", "_", $arguments['id']);
 
 			?>
 			<div id="<?php echo esc_attr($element_id); ?>-wrapper">
@@ -233,6 +233,84 @@ if (! class_exists('WP_Accolore_Settings')){
 				case 'reset':
 					?>
 					<input type="hidden" name="<?php echo esc_attr($arguments['id']) ?>" id="<?php echo esc_attr($arguments['id']) ?>" value="">
+					<?php
+					break;
+				case 'image':
+					$element_value = get_option($element_id, $arguments['default']);
+					if ($element_value == '') {
+						$element_url = $arguments['default'];
+					} elseif(preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $element_value)) { // check if element_value is an URL
+						$element_url = $element_value;
+						$element_value = '';
+					} else {
+						$tmp = wp_get_attachment_image_src( $element_value, 'thumbnail');
+						$element_url = $tmp[0];
+					}
+					wp_enqueue_media();
+					?>
+					<div class="image-preview-wrapper">
+						<img id="<?php echo $element_id; ?>_image_preview" src="<?php echo $element_url; ?>" height="100" style="max-height: 100px;">
+					</div>
+					<button id="<?php echo $element_id; ?>_upload_image_button" title="<?php _e( 'Upload image', $text_domain ); ?>"><span class="dashicons dashicons-plus-alt"></span></button>
+					<button id="<?php echo $element_id; ?>_remove_image_button" title="<?php _e( 'Remove image', $text_domain ); ?>"><span class="dashicons dashicons-trash"></span></button>
+					<input type="hidden" name="<?php echo $element_id; ?>" id="<?php echo $element_id; ?>" value="<?php echo $element_value; ?>">
+					<script>
+						jQuery(document).ready(function() {
+							console.log('<?php echo $element_value; ?>');
+
+							var file_frame;
+							var wp_media_post_id = wp.media.model.settings.post.id;
+							var set_to_post_id = '<?php echo $element_value; ?>';
+							var mime_allowed = [<?php echo $arguments['allowed_mime']; ?>];
+
+							jQuery('#<?php echo $element_id; ?>_upload_image_button').on('click', function( event ){
+								event.preventDefault();
+
+								if (file_frame) {
+									file_frame.uploader.uploader.param( 'post_id', set_to_post_id );
+									file_frame.open();
+									return;
+								} else {
+									wp.media.model.settings.post.id = set_to_post_id;
+								}
+
+								file_frame = wp.media.frames.file_frame = wp.media({
+									title: '<?php echo _e('Select a image to upload', $text_domain); ?>',
+									button: {
+										text: '<?php echo _e('Use this image', $text_domain); ?>',
+									},
+									library : {
+                                        type: mime_allowed,
+                                    },
+									multiple: false
+								});
+
+								file_frame.on( 'select', function() {
+									attachment = file_frame.state().get('selection').first().toJSON();
+
+									jQuery('#<?php echo $element_id; ?>_image_preview').attr('src', attachment.sizes.thumbnail.url).css('width', 'auto');
+									jQuery('#<?php echo $element_id; ?>').val(attachment.id);
+
+									wp.media.model.settings.post.id = wp_media_post_id;
+								});
+
+								file_frame.open();
+							});
+
+							jQuery('#<?php echo $element_id; ?>_remove_image_button').on('click', function( event ) {
+								event.preventDefault();
+
+								jQuery('#<?php echo $element_id; ?>_image_preview').attr('src', '<?php echo $arguments['default']; ?>').css('width', 'auto');
+								jQuery('#<?php echo $element_id; ?>').val('');
+
+								wp.media.model.settings.post.id = set_to_post_id;
+							});
+
+							jQuery('a.add_media').on('click', function() {
+								wp.media.model.settings.post.id = wp_media_post_id;
+							});
+						});
+					</script>
 					<?php
 					break;
 				case 'text':
@@ -301,19 +379,10 @@ if (! class_exists('WP_Accolore_Settings')){
 					?>
 					<table>
 						<tr>
-							<td></td>
 							<td><input type="text" name="<?php echo esc_attr($element_id) ?>_top" id="<?php echo esc_attr($element_id) ?>_top" value="<?php echo $top; ?>" class="small-text" title="<?php _e("Top", $text_domain) ?>" /><span class="dashicons dashicons-arrow-up-alt" title="<?php _e("Top", $text_domain) ?>"></span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="text" name="<?php echo esc_attr($element_id) ?>_left" id="<?php echo esc_attr($element_id) ?>_left" value="<?php echo $left; ?>" class="small-text" title="<?php _e("Left", $text_domain) ?>" /><span class="dashicons dashicons-arrow-left-alt" title="<?php _e("Left", $text_domain) ?>"></span></td>
-							<td></td>
 							<td><input type="text" name="<?php echo esc_attr($element_id) ?>_right" id="<?php echo esc_attr($element_id) ?>_right" value="<?php echo $right; ?>" class="small-text" title="<?php _e("Right", $text_domain) ?>" /><span class="dashicons dashicons-arrow-right-alt" title="<?php _e("Right", $text_domain) ?>"></span><br/></td>
-						</tr>
-						<tr>
-							<td></td>
 							<td><input type="text" name="<?php echo esc_attr($element_id) ?>_bottom" id="<?php echo esc_attr($element_id) ?>_bottom" value="<?php echo $bottom; ?>" class="small-text" title="<?php _e("Bottom", $text_domain) ?>" /><span class="dashicons dashicons-arrow-down-alt" title="<?php _e("Bottom", $text_domain) ?>"></span><br/></td>
-							<td></td>
+							<td><input type="text" name="<?php echo esc_attr($element_id) ?>_left" id="<?php echo esc_attr($element_id) ?>_left" value="<?php echo $left; ?>" class="small-text" title="<?php _e("Left", $text_domain) ?>" /><span class="dashicons dashicons-arrow-left-alt" title="<?php _e("Left", $text_domain) ?>"></span></td>
 						</tr>
 					</table>
 					
@@ -419,7 +488,7 @@ if (! class_exists('WP_Accolore_Settings')){
 							var input_<?php echo esc_attr($element_id); ?>_family = document.querySelector("#<?php echo esc_attr($element_id); ?>_family");
 
 							const fontPicker_<?php echo esc_attr($element_id); ?> = new FontPicker(
-								"AIzaSyC3nCnaCoEz6-iaMd2OQmYxw4dOCKaIlUI", // Google API key
+								"<?php echo $arguments['google_api_key']; ?>", // Google API key
 								"<?php echo $element_value_family; ?>",
 								{
 									pickerId : "<?php echo $picker_uid; ?>",
@@ -587,10 +656,15 @@ if (! class_exists('WP_Accolore_Settings')){
 		public function settings_page_content () {
 			global $accolore_config;
 
-			$config_menu     = $accolore_config[$this->plugin_name]['settings_config']['menu'];
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_menu     = $accolore_config[$this->plugin_name]['menu'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 			$config_version  = $accolore_config[$this->plugin_name]['version'];
+			
+			$config_doc = false;
+			if ( isset($accolore_config[$this->plugin_name]['documentation_tab']) ) {
+				$config_doc = $accolore_config[$this->plugin_name]['documentation_tab'];
+			}
 
 			$default_tab = '';
 			$tabs = array();
@@ -611,7 +685,9 @@ if (! class_exists('WP_Accolore_Settings')){
 					<?php foreach($tabs as $tab) : ?>
 						<a href="?page=<?php echo $config_prefix . '_settings&tab=' . $tab['id']; ?>" class="nav-tab <?php echo $active_tab == $tab['id'] ? 'nav-tab-active' : '' ?>"><?php echo $tab['title'] ?></a>
 					<?php endforeach; ?>
-					<a href="http://docs.accolore.com" class="nav-tab" target="_blank"><?php _e( 'Documentation', $this->plugin_name ) ?> &raquo;</a>
+					<?php if ($config_doc != false) : ?>
+						<a href="<?php echo $config_doc['url']; ?>" class="nav-tab" target="_blank"><?php echo $config_doc['title']; ?> &raquo;</a>
+					<?php endif; ?>
 				</h2>
 
 				<form method="post" action="options.php">
@@ -657,7 +733,7 @@ if (! class_exists('WP_Accolore_Settings')){
 			global $accolore_config;
 			$result = [];
 
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 
 			foreach($config_sections as $section) {
@@ -737,7 +813,7 @@ if (! class_exists('WP_Accolore_Settings')){
 			global $accolore_config;
 			$css = '';
 
-			$config_sections = $accolore_config[$this->plugin_name]['settings_config']['sections'];
+			$config_sections = $accolore_config[$this->plugin_name]['sections'];
 			$config_prefix   = $accolore_config[$this->plugin_name]['prefix'];
 
 			ob_start();
