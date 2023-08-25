@@ -110,7 +110,7 @@ $accolore_config['wp-al-settings-demo'] = array(
 					'id'       => 'slider_field',
 					'type'     => 'slider',
 					'title'    => esc_html__( 'Slider field', 'wp-al-settings-demo' ),
-					'subtitle' => '',
+					'subtitle' => esc_html__( 'A numeric value managed by a linear slider.', 'wp-al-settings-demo' ),
 					'desc'     => '',
 					'default'  => 10,
 					'min'      => 5,
@@ -118,13 +118,21 @@ $accolore_config['wp-al-settings-demo'] = array(
 					'max'      => 100,
 				),
 				array(
-					'id'           => 'image_field',
-					'type'         => 'image',
-					'title'        => esc_html__( 'Image field', 'wp-al-settings-demo' ),
-					'subtitle'     => esc_html__( 'Contain an image selected from media or uploaded.', 'wp-al-settings-demo' ),
+					'id'           => 'media_image_field',
+					'type'         => 'media_image',
+					'title'        => esc_html__( 'Media image field', 'wp-al-settings-demo' ),
+					'subtitle'     => esc_html__( 'Contain an image selected from media library or uploaded.', 'wp-al-settings-demo' ),
 					'desc'         => '',
 					'default'      => plugin_dir_url( __FILE__ ) . 'admin/images/placeholder.png',
-					'allowed_mime' => "'image'",
+				),
+				array(
+					'id'           => 'media_other_field',
+					'type'         => 'media_other',
+					'title'        => esc_html__( 'Media other field', 'wp-al-settings-demo' ),
+					'subtitle'     => esc_html__( 'Contain an media (not an image) selected from media library or uploaded. When selected the media name will be displayed in the preview.', 'wp-al-settings-demo' ),
+					'desc'         => '',
+					'default'      => '',
+					'mime_type'    => false, // "'audio','video'", set to false if all mime types are allowed
 				),
 				array(
 					'id'       => 'reset_field',
@@ -339,6 +347,7 @@ $accolore_config['wp-al-settings-demo'] = array(
 			'title'  => esc_html__( 'Dev fields', 'wp-al-settings-demo' ),
 			'default' => false,
 			'fields'  => array(
+				
 			),
 		),		
 	),

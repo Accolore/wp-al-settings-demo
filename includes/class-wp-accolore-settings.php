@@ -117,7 +117,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_family',
 									array(
-										'default' => $field['default']['family'],
+										'default'           => $field['default']['family'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -127,7 +127,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_color',
 									array(
-										'default' => $field['default']['color'],
+										'default'           => $field['default']['color'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -137,7 +137,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_size',
 									array(
-										'default' => $field['default']['size'],
+										'default'           => $field['default']['size'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -147,7 +147,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_weight',
 									array(
-										'default' => $field['default']['weight'],
+										'default'           => $field['default']['weight'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -159,7 +159,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_top',
 									array(
-										'default' => $field['default']['top'],
+										'default'           => $field['default']['top'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -169,7 +169,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_right',
 									array(
-										'default' => $field['default']['right'],
+										'default'           => $field['default']['right'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -179,7 +179,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_bottom',
 									array(
-										'default' => $field['default']['bottom'],
+										'default'           => $field['default']['bottom'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -189,7 +189,7 @@ if (! class_exists('WP_Accolore_Settings')){
 									$config_prefix . '_' . $section['id'] . '_settings',
 									$config_prefix . '_' . $field['id'] . '_left',
 									array(
-										'default' => $field['default']['left'],
+										'default'           => $field['default']['left'],
 										'sanitize_callback' => array($this, 'sanitize_settings'),
 									)
 								);
@@ -202,7 +202,7 @@ if (! class_exists('WP_Accolore_Settings')){
 								$config_prefix . '_' . $section['id'] . '_settings',
 								$config_prefix . '_' . $field['id'],
 								array(
-									'default' => $field['default'],
+									'default'           => $field['default'],
 									'sanitize_callback' => array($this, 'sanitize_settings'),
 								)
 							);
@@ -235,79 +235,73 @@ if (! class_exists('WP_Accolore_Settings')){
 					<input type="hidden" name="<?php echo esc_attr($arguments['id']) ?>" id="<?php echo esc_attr($arguments['id']) ?>" value="">
 					<?php
 					break;
-				case 'image':
-					$element_value = get_option($element_id, $arguments['default']);
+				case 'media_image':
+					$element_value = get_option($element_id, null);
+					$element_url   = '';
+
 					if ($element_value == '') {
 						$element_url = $arguments['default'];
-					} elseif(preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $element_value)) { // check if element_value is an URL
-						$element_url = $element_value;
-						$element_value = '';
 					} else {
-						$tmp = wp_get_attachment_image_src( $element_value, 'thumbnail');
+						$tmp = wp_get_attachment_image_src($element_value, 'thumbnail');
 						$element_url = $tmp[0];
 					}
+
 					wp_enqueue_media();
 					?>
-					<div class="image-preview-wrapper">
-						<img id="<?php echo $element_id; ?>_image_preview" src="<?php echo $element_url; ?>" height="100" style="max-height: 100px;">
+					<div class="media-preview-wrapper">
+						<img id="<?php echo $element_id; ?>_media_preview" src="<?php echo $element_url; ?>" width="100%">
 					</div>
-					<button id="<?php echo $element_id; ?>_upload_image_button" title="<?php _e( 'Upload image', $text_domain ); ?>"><span class="dashicons dashicons-plus-alt"></span></button>
-					<button id="<?php echo $element_id; ?>_remove_image_button" title="<?php _e( 'Remove image', $text_domain ); ?>"><span class="dashicons dashicons-trash"></span></button>
+					<button id="<?php echo $element_id; ?>_upload_media_button" title="<?php _e( 'Upload media', $text_domain ); ?>"><span class="dashicons dashicons-plus-alt"></span></button>
+					<button id="<?php echo $element_id; ?>_remove_media_button" title="<?php _e( 'Remove media', $text_domain ); ?>"><span class="dashicons dashicons-trash"></span></button>
 					<input type="hidden" name="<?php echo $element_id; ?>" id="<?php echo $element_id; ?>" value="<?php echo $element_value; ?>">
 					<script>
 						jQuery(document).ready(function() {
-							console.log('<?php echo $element_value; ?>');
-
 							var file_frame;
-							var wp_media_post_id = wp.media.model.settings.post.id;
-							var set_to_post_id = '<?php echo $element_value; ?>';
-							var mime_allowed = [<?php echo $arguments['allowed_mime']; ?>];
+							var selected_post_id = '<?php echo $element_value; ?>';
 
-							jQuery('#<?php echo $element_id; ?>_upload_image_button').on('click', function( event ){
+							jQuery('#<?php echo $element_id; ?>_upload_media_button').on('click', function( event ){
 								event.preventDefault();
 
-								if (file_frame) {
-									file_frame.uploader.uploader.param( 'post_id', set_to_post_id );
-									file_frame.open();
-									return;
-								} else {
-									wp.media.model.settings.post.id = set_to_post_id;
+								if ( typeof file_frame != 'undefined' ) {
+									file_frame.close();
 								}
 
 								file_frame = wp.media.frames.file_frame = wp.media({
-									title: '<?php echo _e('Select a image to upload', $text_domain); ?>',
+									title: '<?php echo _e('Select a media', $text_domain); ?>',
 									button: {
-										text: '<?php echo _e('Use this image', $text_domain); ?>',
+										text: '<?php echo _e('Use this media', $text_domain); ?>',
 									},
-									library : {
-                                        type: mime_allowed,
-                                    },
-									multiple: false
+									multiple: false,
+									library: {
+										type: 'image',
+									},
+								});
+
+								file_frame.on( 'open', function() {
+									if (selected_post_id != '') {
+										file_frame.state().get('selection').add(wp.media.attachment(selected_post_id));
+									}
 								});
 
 								file_frame.on( 'select', function() {
 									attachment = file_frame.state().get('selection').first().toJSON();
 
-									jQuery('#<?php echo $element_id; ?>_image_preview').attr('src', attachment.sizes.thumbnail.url).css('width', 'auto');
 									jQuery('#<?php echo $element_id; ?>').val(attachment.id);
+									jQuery('#<?php echo $element_id; ?>_media_preview').attr('src', attachment.sizes.thumbnail.url);
 
-									wp.media.model.settings.post.id = wp_media_post_id;
+									selected_post_id = attachment.id;
 								});
 
 								file_frame.open();
 							});
 
-							jQuery('#<?php echo $element_id; ?>_remove_image_button').on('click', function( event ) {
+							jQuery('#<?php echo $element_id; ?>_remove_media_button').on('click', function( event ) {
 								event.preventDefault();
 
-								jQuery('#<?php echo $element_id; ?>_image_preview').attr('src', '<?php echo $arguments['default']; ?>').css('width', 'auto');
 								jQuery('#<?php echo $element_id; ?>').val('');
+								jQuery('#<?php echo $element_id; ?>_media_preview').attr('src', '<?php echo $arguments['default']; ?>');
 
-								wp.media.model.settings.post.id = set_to_post_id;
-							});
-
-							jQuery('a.add_media').on('click', function() {
-								wp.media.model.settings.post.id = wp_media_post_id;
+								selected_post_id = '';
 							});
 						});
 					</script>
@@ -546,8 +540,76 @@ if (! class_exists('WP_Accolore_Settings')){
 					<?php if (isset($arguments['desc'])) echo '<p>' . $arguments['desc'] . '</p>'; ?>
 					<?php
 					break;
+				case 'media_other':
+					$element_value = get_option($element_id, null);
+					$element_title = wp_basename( get_attached_file( $element_value ) );
+					if ($element_title == '') $element_title = __('No media selected', $text_domain);
+
+					wp_enqueue_media();
+					?>
+					<p class="media-title" id="<?php echo $element_id; ?>_media_title"><?php echo $element_title; ?></p>
+					<button id="<?php echo $element_id; ?>_upload_media_button" title="<?php _e( 'Upload media', $text_domain ); ?>"><span class="dashicons dashicons-plus-alt"></span></button>
+					<button id="<?php echo $element_id; ?>_remove_media_button" title="<?php _e( 'Remove media', $text_domain ); ?>"><span class="dashicons dashicons-trash"></span></button>
+					<input type="hidden" name="<?php echo $element_id; ?>" id="<?php echo $element_id; ?>" value="<?php echo $element_value; ?>">
+					<script>
+						jQuery(document).ready(function() {
+							var file_frame;
+							var selected_post_id = '<?php echo $element_value; ?>';
+
+							jQuery('#<?php echo $element_id; ?>_upload_media_button').on('click', function( event ){
+								event.preventDefault();
+
+								if ( typeof file_frame != 'undefined' ) {
+									file_frame.close();
+								}
+
+								file_frame = wp.media.frames.file_frame = wp.media({
+									title: '<?php echo _e('Select a media', $text_domain); ?>',
+									button: {
+										text: '<?php echo _e('Use this media', $text_domain); ?>',
+									},
+									multiple: false,
+									<?php if ($arguments['mime_type'] != false) : ?>
+										library: {
+											type: [<?php echo $arguments['mime_type']; ?>],
+										},
+									<?php endif; ?>
+								});
+
+								file_frame.on( 'open', function() {
+									if (selected_post_id != '') {
+										file_frame.state().get('selection').add(wp.media.attachment(selected_post_id));
+									}
+								});
+
+								file_frame.on( 'select', function() {
+									attachment = file_frame.state().get('selection').first().toJSON();
+
+									jQuery('#<?php echo $element_id; ?>').val(attachment.id);
+									jQuery('#<?php echo $element_id; ?>_media_title').html(attachment.filename);
+
+									selected_post_id = attachment.id;
+								});
+
+								file_frame.open();
+							});
+
+							jQuery('#<?php echo $element_id; ?>_remove_media_button').on('click', function( event ) {
+								event.preventDefault();
+
+								jQuery('#<?php echo $element_id; ?>').val('');
+								jQuery('#<?php echo $element_id; ?>_media_title').html('<?php _e('No media selected', $text_domain); ?>');
+
+								selected_post_id = '';
+							});
+						});
+					</script>
+					<?php
+					break;
 				default:
+					echo "<pre>";
 					print_r($arguments);
+					echo "</pre>";
 			}
 			?>
 			</div><!-- element_id wrapper close -->
@@ -784,6 +846,8 @@ if (! class_exists('WP_Accolore_Settings')){
 						case 'select':
 						case 'slider':
 						case 'text':
+						case 'media_image':
+						case 'media_other':
 						case 'textarea':
 							if ($defaults) {
 								$result[$element_id]  = $field['default'];

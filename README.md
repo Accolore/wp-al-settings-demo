@@ -24,6 +24,9 @@ To customize the configuration page you can change the wp-accolore-config.php fi
 
 ## Changelog ##
 
+** 1.1 **
+* Added media field
+
 ** 1.0 **
 * First release
 

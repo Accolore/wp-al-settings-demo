@@ -21,7 +21,7 @@
 .color-picker-boxed {
     width         : 32px;
     height        : 32px;
-    border   : 1px solid lightgray;
+    border        : 1px solid lightgray;
     display       : inline-block;
     vertical-align: middle;
 }
@@ -35,8 +35,8 @@
     color           : whitesmoke;
     padding         : 0.3em 0.6em;
     margin          : 0;
-    font-size: 14px;
-    font-weight: 700;
+    font-size       : 14px;
+    font-weight     : 700;
 }
 
 input[type="text"].wide {
@@ -44,3 +44,10 @@ input[type="text"].wide {
 }
 
 .wrapper-hide { display: none; }
+
+.media-preview-wrapper {
+    width : 150px;
+    height: 150px;
+    border: 1px solid gray;
+    text-align: center;
+}
