@@ -16,7 +16,7 @@
  * Plugin Name:       WP Accolore Settings Demo
  * Plugin URI:        https://github.com/Accolore/wp-accolore-settings-demo
  * Description:       A plugin for Accolore settings demo
- * Version:           1.0.0
+ * Version:           2.0.0
  * Author:            Accolore
  * Author URI:        https://codecanyon.net/user/accolore/portfolio
  * License:           GPL-2.0+

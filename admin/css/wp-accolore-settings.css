@@ -1,0 +1,91 @@
+ .wpals-color-picker-wrapper {
+    display: inline-block;
+    border : 1px solid lightgray;
+    padding: 0 0 0 8px;
+    margin : 0 10px 0 0;
+}
+
+.wpals-color-picker {
+    width         : 32px;
+    height        : 32px;
+    border-left   : 1px solid lightgray;
+    display       : inline-block;
+    vertical-align: middle;
+}
+
+.wpals-color-picker-boxed {
+    width         : 32px;
+    height        : 32px;
+    border        : 1px solid lightgray;
+    display       : inline-block;
+    vertical-align: middle;
+}
+
+.wpals-font-picker-wrapper {
+    display: inline-block;
+}
+
+.wpals-version-label {
+    background-color: orangered;
+    color           : whitesmoke;
+    padding         : 0.3em 0.6em;
+    margin          : 0;
+    font-size       : 14px;
+    font-weight     : 700;
+}
+
+input[type="text"].wide {
+    width: 90% !important;
+}
+
+.hidden { display: none; }
+
+.wpals-media-preview-wrapper img {
+    width     : 150px;
+    height    : 150px;
+    border    : 1px solid gray;
+    text-align: center;
+}
+
+.wpals-input-icons {
+    margin-bottom: 10px;
+}
+
+.wpals-input-icons input {
+    padding-left: 28px;
+}
+
+.wpals-input-icons i {
+    position: absolute;
+    padding: 6px 0  0 8px;
+}
+
+.wpals-separator {
+    border: 1px solid lightgray;
+}
+
+.wpals-option-image {
+    width : 32px;
+    height: 32px;
+    border: 3px solid #f0f0f1;
+    cursor: pointer;
+}
+
+.wpals-option-image:hover,
+.wpals-option-image.selected,
+.wpals-color-palette:hover,
+.wpals-color-palette.selected {
+    border-color: dimgray;
+}
+
+.wpals-slider {
+    margin-top: 36px;
+}
+
+.wpals-color-palette {
+    width  : 24px;
+    height : 24px;
+    border : 2px solid lightgray;
+    cursor : pointer;
+    display: inline-block;
+}

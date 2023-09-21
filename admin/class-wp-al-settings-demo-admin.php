@@ -72,8 +72,10 @@ class Wp_Al_Settings_Demo_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-al-settings-demo-admin.css', array(), $this->version, 'all' );
+		
+		wp_enqueue_style( $this->plugin_name . '-nouislider', plugin_dir_url( __FILE__ ) . 'css/nouislider.min.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-iconfonts', plugin_dir_url( __FILE__ ) . 'css/fontello-embedded.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-accolore-settings.css', array(), $this->version, 'all' );
 
 	}
 
@@ -100,8 +102,8 @@ class Wp_Al_Settings_Demo_Admin {
 
 		wp_enqueue_script( 'vanilla-picker', plugin_dir_url( __FILE__ ) . 'js/vanilla-picker.min.js', array(), $this->version, false );
 		wp_enqueue_script( 'FontPicker', plugin_dir_url( __FILE__ ) . 'js/FontPicker.js', array(), $this->version, false );
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-al-settings-demo-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( 'nouislider', plugin_dir_url( __FILE__ ) . 'js/nouislider.min.js', array(), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-accolore-settings.js', array(), $this->version, false );
 
 	}
 
