@@ -19,7 +19,7 @@ To customize the configuration page you can change the wp-accolore-config.php fi
 
 ## Installation ##
 
-1. Upload `wp-al-settings-demo.php` to the `/wp-content/plugins/` directory
+1. Upload `wp-al-settings-demo` folder to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 ## Changelog ##
